@@ -1,0 +1,16 @@
+{
+    "name": "Auto Collapse / Expand for Tab Groups",
+    "description": "This extension will automatically collapse tabs when you go to a tab outside of that tab group; it will also select the most recent tab when you are expanding a tab group!",
+    "version": "1.0",
+    "manifest_version": 3,
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": ["tabs", "tabGroups"],
+    "icons": {
+        "16": "/16x16.png",
+        "32": "/32x32.png",
+        "48": "/48x48.png",
+        "128": "/128x128.png"
+    }
+}
