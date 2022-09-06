@@ -1,4 +1,15 @@
 let tabGroupActiveTabIdCache = {};
+function throttle (func, wait = 100) {
+    let timer = null;
+    return function (...args) {
+        if (timer === null) {
+            timer = setTimeout(() => {
+                func.apply(this, args);
+                timer = null;
+            }, wait);
+        }
+    };
+}
 
 function collapseTabGroup(tabGroupId) {
     chrome.tabGroups.update(tabGroupId, { collapsed: true })
@@ -22,9 +33,11 @@ function handleTabChange(tabId) {
     });
 }
 
-chrome.tabs.onActivated.addListener(activeInfo => handleTabChange(activeInfo.tabId));
-chrome.tabs.onAttached.addListener(tabId => handleTabChange(tabId));
-chrome.tabs.onMoved.addListener(tabId => handleTabChange(tabId));
+let tabThrottler = throttle(handleTabChange, 250);
+
+chrome.tabs.onActivated.addListener(activeInfo => tabThrottler(activeInfo.tabId));
+chrome.tabs.onAttached.addListener(tabId => tabThrottler(tabId));
+chrome.tabs.onMoved.addListener(tabId => tabThrottler(tabId));
 
 chrome.tabGroups.onUpdated.addListener(async (updatedTabGroup) => {
     if (!updatedTabGroup.collapsed) {
