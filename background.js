@@ -40,7 +40,7 @@ chrome.tabs.onAttached.addListener(tabId => tabThrottler(tabId));
 chrome.tabs.onMoved.addListener(tabId => tabThrottler(tabId));
 
 chrome.tabGroups.onUpdated.addListener(async (updatedTabGroup) => {
-  setTimeout((async (updatedTabGroup) => {
+  let updater = async (updatedTabGroup) => {
     let currentTab = await chrome.tabs.query({ active: true, lastFocusedWindow: true }).catch(() => {}); //Swallow
     if (!updatedTabGroup.collapsed && currentTab.groupId !== updatedTabGroup.id) {
       let tabId = tabGroupActiveTabIdCache[updatedTabGroup.id];
@@ -56,5 +56,12 @@ chrome.tabGroups.onUpdated.addListener(async (updatedTabGroup) => {
         .catch(() => {}) //Swallow
         .then(tab => chrome.tabs.highlight({ 'tabs': tab.index }), () => {});
     }
-  }).bind(null, updatedTabGroup), 250);
+  };
+
+  let timer = 1.5; //Num seconds to make sure we aren't switching from an active tab
+  let interval = 50; //Num milliseconds between checks
+  for (let i=0; i<=timer*1000/interval; i++) {
+    setTimeout(updater.bind(null, updatedTabGroup), i*interval);
+  }
+
 });
